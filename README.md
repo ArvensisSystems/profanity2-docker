@@ -15,11 +15,13 @@ Project "profanity2" is not generating key anymore, instead it adjusts user-prov
 ## Getting public key for mandatory `-z` parameter
 
 Generate private key and public key via openssl in terminal (remove prefix "04" from public key):
+
 ```bash
 $ openssl ecparam -genkey -name secp256k1 -text -noout -outform DER | xxd -p -c 1000 | sed 's/41534e31204f49443a20736563703235366b310a30740201010420/Private Key: /' | sed 's/a00706052b8104000aa144034200/\'$'\nPublic Key: /'
 ```
 
 Derive public key from existing private key via openssl in terminal (remove prefix "04" from public key):
+
 ```bash
 $ openssl ec -inform DER -text -noout -in <(cat <(echo -n "302e0201010420") <(echo -n "PRIVATE_KEY_HEX") <(echo -n "a00706052b8104000a") | xxd -r -p) 2>/dev/null | tail -6 | head -5 | sed 's/[ :]//g' | tr -d '\n' && echo
 ```
@@ -29,6 +31,7 @@ $ openssl ec -inform DER -text -noout -in <(cat <(echo -n "302e0201010420") <(ec
 ### Terminal:
 
 Use private keys as 64-symbol hexadecimal string WITHOUT `0x` prefix:
+
 ```bash
 (echo 'ibase=16;obase=10' && (echo '(PRIVATE_KEY_A + PRIVATE_KEY_B) % FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F' | tr '[:lower:]' '[:upper:]')) | bc
 ```
@@ -36,12 +39,18 @@ Use private keys as 64-symbol hexadecimal string WITHOUT `0x` prefix:
 ### Python
 
 Use private keys as 64-symbol hexadecimal string WITH `0x` prefix:
+
 ```bash
 $ python3
 >>> hex((PRIVATE_KEY_A + PRIVATE_KEY_B) % 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F)
 ```
 
+# Docker Usage
+
+This is published on Docker as `0xlynett/profanity2`. You can use it on [Vast](https://vast.ai) by selecting the image. From inside, you can run `./profanity2.x64`. Only tested on NVIDIA GPUs.
+
 # Usage
+
 ```
 usage: ./profanity2 [OPTIONS]
 
@@ -118,14 +127,14 @@ usage: ./profanity2 [OPTIONS]
 ```
 
 ### Benchmarks - Current version
-|Model|Clock Speed|Memory Speed|Modified straps|Speed|Time to match eight characters
-|:-:|:-:|:-:|:-:|:-:|:-:|
-|GTX 1070 OC|1950|4450|NO|179.0 MH/s| ~24s
-|GTX 1070|1750|4000|NO|163.0 MH/s| ~26s
-|RX 480|1328|2000|YES|120.0 MH/s| ~36s
-|RTX 4090|-|-|-|1096 MH/s| ~3s
-|Apple Silicon M1<br/>(8-core GPU)|-|-|-|45.0 MH/s| ~97s
-|Apple Silicon M1 Max<br/>(32-core GPU)|-|-|-|172.0 MH/s| ~25s
-|Apple Silicon M3 Pro<br/>(18-core GPU)|-|-|-|97 MH/s| ~45s
-|Apple Silicon M4 Max<br/>(40-core GPU)|-|-|-|350 MH/s| ~12s
 
+|                 Model                  | Clock Speed | Memory Speed | Modified straps |   Speed    | Time to match eight characters |
+| :------------------------------------: | :---------: | :----------: | :-------------: | :--------: | :----------------------------: |
+|              GTX 1070 OC               |    1950     |     4450     |       NO        | 179.0 MH/s |              ~24s              |
+|                GTX 1070                |    1750     |     4000     |       NO        | 163.0 MH/s |              ~26s              |
+|                 RX 480                 |    1328     |     2000     |       YES       | 120.0 MH/s |              ~36s              |
+|                RTX 4090                |      -      |      -       |        -        | 1096 MH/s  |              ~3s               |
+|   Apple Silicon M1<br/>(8-core GPU)    |      -      |      -       |        -        | 45.0 MH/s  |              ~97s              |
+| Apple Silicon M1 Max<br/>(32-core GPU) |      -      |      -       |        -        | 172.0 MH/s |              ~25s              |
+| Apple Silicon M3 Pro<br/>(18-core GPU) |      -      |      -       |        -        |  97 MH/s   |              ~45s              |
+| Apple Silicon M4 Max<br/>(40-core GPU) |      -      |      -       |        -        |  350 MH/s  |              ~12s              |
